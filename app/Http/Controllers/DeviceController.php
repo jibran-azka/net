@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Device;
+use App\Models\DeviceLink;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -94,7 +96,11 @@ class DeviceController extends Controller
     public function destroy(Device $device)
     {
         $this->ensureOwner($device);
-        $device->delete();
+        DB::transaction(function () use ($device) {
+            $interfaceIds = $device->interfaces()->pluck('id');
+            DeviceLink::whereIn('source_interface_id', $interfaceIds)->orWhereIn('target_interface_id', $interfaceIds)->delete();
+            $device->delete();
+        });
 
         return redirect()->route('devices.index')->with('success', 'Device berhasil dihapus.');
     }

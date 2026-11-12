@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\DeviceInterfaceController;
 use App\Http\Controllers\IpAddressController;
+use App\Http\Controllers\NetworkTopologyController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,11 @@ Route::prefix('{current_team}')
     });
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/network-topology', [NetworkTopologyController::class, 'index'])->name('topology.index');
+    Route::post('/network-topology/links', [NetworkTopologyController::class, 'storeLink'])->name('topology.links.store');
+    Route::put('/network-topology/links/{link}', [NetworkTopologyController::class, 'updateLink'])->name('topology.links.update');
+    Route::delete('/network-topology/links/{link}', [NetworkTopologyController::class, 'destroyLink'])->name('topology.links.destroy');
+    Route::put('/network-topology/positions', [NetworkTopologyController::class, 'savePosition'])->name('topology.positions.save');
     Route::post('invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])->name('invitations.accept');
     Route::delete('invitations/{invitation}', [TeamInvitationController::class, 'decline'])->name('invitations.decline');
 });

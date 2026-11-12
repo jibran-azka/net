@@ -7,18 +7,323 @@ const landingCss = `
 `;
 
 const featureData = [
-    { icon: Boxes, title: 'Network Inventory', text: 'Manage and organize routers, switches, servers, firewalls, and other network devices.' },
-    { icon: GitBranch, title: 'Network Topology', text: 'Visualize infrastructure and connections between devices with complete operational context.' },
-    { icon: Activity, title: 'Network Monitoring', text: 'Monitor device availability, latency, packet loss, and network performance.' },
+    {
+        icon: Boxes,
+        title: 'Network Inventory',
+        text: 'Manage and organize routers, switches, servers, firewalls, and other network devices.',
+    },
+    {
+        icon: GitBranch,
+        title: 'Network Topology',
+        text: 'Visualize infrastructure and connections between devices with complete operational context.',
+    },
+    {
+        icon: Activity,
+        title: 'Network Monitoring',
+        text: 'Monitor device availability, latency, packet loss, and network performance.',
+    },
 ];
 
-function Brand() { return <Link href="/" className="na-brand"><span className="na-mark"><Network size={20} /></span>NETATLAS</Link>; }
+function Brand() {
+    return (
+        <Link href="/" className="na-brand">
+            <span className="na-mark">
+                <Network size={20} />
+            </span>
+            NETATLAS
+        </Link>
+    );
+}
 
-function NetworkMap() { return <div className="na-map"><div className="na-map-inner"><div className="na-map-top"><span>Network topology</span><span className="na-status">● All systems operational</span></div><svg viewBox="0 0 520 330" role="img" aria-label="Network topology illustration"><defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="coloredBlur" /><feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs><g stroke="#4e8cda" strokeWidth="2" fill="none" opacity=".75"><path d="M260 88V152M260 152L112 248M260 152L408 248M260 152V268" /></g><g fill="#7ab4ff" filter="url(#glow)"><circle cx="260" cy="88" r="4" /><circle cx="260" cy="152" r="4" /><circle cx="112" cy="248" r="4" /><circle cx="408" cy="248" r="4" /></g><g fontFamily="Arial,sans-serif"><g transform="translate(195 30)"><rect width="130" height="57" rx="10" fill="#173b69" stroke="#4279bd" /><text x="16" y="25" fill="#eef6ff" fontSize="12" fontWeight="700">INTERNET</text><text x="16" y="43" fill="#9fc5f5" fontSize="10">WAN gateway</text></g><g transform="translate(195 122)"><rect width="130" height="57" rx="10" fill="#1d4b82" stroke="#5d9dea" /><text x="16" y="25" fill="#fff" fontSize="12" fontWeight="700">CORE ROUTER</text><text x="16" y="43" fill="#b8d6fa" fontSize="10">10.10.0.1</text></g><g transform="translate(45 246)"><rect width="134" height="57" rx="10" fill="#173b69" stroke="#4279bd" /><text x="16" y="25" fill="#eef6ff" fontSize="12" fontWeight="700">ACCESS SWITCH</text><text x="16" y="43" fill="#9fc5f5" fontSize="10">48 ports active</text></g><g transform="translate(341 246)"><rect width="134" height="57" rx="10" fill="#173b69" stroke="#4279bd" /><text x="16" y="25" fill="#eef6ff" fontSize="12" fontWeight="700">APP SERVER</text><text x="16" y="43" fill="#9fc5f5" fontSize="10">Healthy</text></g></g></svg></div></div>; }
+function NetworkMap() {
+    return (
+        <div className="na-map">
+            <div className="na-map-inner">
+                <div className="na-map-top">
+                    <span>Network topology</span>
+                    <span className="na-status">● All systems operational</span>
+                </div>
+                <svg
+                    viewBox="0 0 520 330"
+                    role="img"
+                    aria-label="Network topology illustration"
+                >
+                    <defs>
+                        <filter id="glow">
+                            <feGaussianBlur
+                                stdDeviation="3"
+                                result="coloredBlur"
+                            />
+                            <feMerge>
+                                <feMergeNode in="coloredBlur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <g
+                        stroke="#4e8cda"
+                        strokeWidth="2"
+                        fill="none"
+                        opacity=".75"
+                    >
+                        <path d="M260 88V152M260 152L112 248M260 152L408 248M260 152V268" />
+                    </g>
+                    <g fill="#7ab4ff" filter="url(#glow)">
+                        <circle cx="260" cy="88" r="4" />
+                        <circle cx="260" cy="152" r="4" />
+                        <circle cx="112" cy="248" r="4" />
+                        <circle cx="408" cy="248" r="4" />
+                    </g>
+                    <g fontFamily="Arial,sans-serif">
+                        <g transform="translate(195 30)">
+                            <rect
+                                width="130"
+                                height="57"
+                                rx="10"
+                                fill="#173b69"
+                                stroke="#4279bd"
+                            />
+                            <text
+                                x="16"
+                                y="25"
+                                fill="#eef6ff"
+                                fontSize="12"
+                                fontWeight="700"
+                            >
+                                INTERNET
+                            </text>
+                            <text x="16" y="43" fill="#9fc5f5" fontSize="10">
+                                WAN gateway
+                            </text>
+                        </g>
+                        <g transform="translate(195 122)">
+                            <rect
+                                width="130"
+                                height="57"
+                                rx="10"
+                                fill="#1d4b82"
+                                stroke="#5d9dea"
+                            />
+                            <text
+                                x="16"
+                                y="25"
+                                fill="#fff"
+                                fontSize="12"
+                                fontWeight="700"
+                            >
+                                CORE ROUTER
+                            </text>
+                            <text x="16" y="43" fill="#b8d6fa" fontSize="10">
+                                10.10.0.1
+                            </text>
+                        </g>
+                        <g transform="translate(45 246)">
+                            <rect
+                                width="134"
+                                height="57"
+                                rx="10"
+                                fill="#173b69"
+                                stroke="#4279bd"
+                            />
+                            <text
+                                x="16"
+                                y="25"
+                                fill="#eef6ff"
+                                fontSize="12"
+                                fontWeight="700"
+                            >
+                                ACCESS SWITCH
+                            </text>
+                            <text x="16" y="43" fill="#9fc5f5" fontSize="10">
+                                48 ports active
+                            </text>
+                        </g>
+                        <g transform="translate(341 246)">
+                            <rect
+                                width="134"
+                                height="57"
+                                rx="10"
+                                fill="#173b69"
+                                stroke="#4279bd"
+                            />
+                            <text
+                                x="16"
+                                y="25"
+                                fill="#eef6ff"
+                                fontSize="12"
+                                fontWeight="700"
+                            >
+                                APP SERVER
+                            </text>
+                            <text x="16" y="43" fill="#9fc5f5" fontSize="10">
+                                Healthy
+                            </text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    );
+}
 
 export default function Welcome() {
     const { auth, currentTeam } = usePage().props;
     const dashboardUrl = currentTeam ? dashboard(currentTeam.slug) : '/';
     const mainAction = auth.user ? dashboardUrl : register();
-    return <><Head title="NETATLAS — Your Network. One Platform." /><style>{landingCss}</style><div className="na"><header className="na-header"><div className="na-wrap na-nav"><Brand /><nav className="na-links"><a href="#home">Home</a><a href="#features">Features</a><a href="#about">About</a></nav><div className="na-actions">{auth.user ? <Link className="na-button" href={dashboardUrl}>Dashboard</Link> : <><Link className="na-login" href={login()}>Login</Link><Link className="na-button" href={register()}>Get Started</Link></>}</div></div></header><main id="home"><section className="na-hero"><div className="na-wrap na-hero-grid"><div><div className="na-eyebrow">✦ Enterprise network intelligence</div><h1>Your Network.<br /><span>One Platform.</span></h1><p className="na-kicker">Manage. Visualize. Monitor.</p><p className="na-copy">Centralize your network infrastructure management, visualize network topology, and monitor device availability through one unified platform.</p><div className="na-hero-actions"><Link className="na-button" href={mainAction}>{auth.user ? 'Explore Platform' : 'Get Started'} <ArrowRight size={16} /></Link><a className="na-button na-button--secondary" href="#features">Explore Features</a></div><div className="na-points"><span className="na-point">Unified visibility</span><span className="na-point">Operational clarity</span></div></div><NetworkMap /></div></section><section id="features" className="na-features"><div className="na-wrap"><div className="na-section-head"><div className="na-overline">CORE CAPABILITIES</div><h2>Everything you need to run your network with confidence.</h2><p>A clear and practical foundation for network operations.</p></div><div className="na-cards">{featureData.map(({ icon: Icon, title, text }) => <article className="na-card" key={title}><div className="na-icon"><Icon size={23} /></div><h3>{title}</h3><p>{text}</p><span>Learn more <ArrowRight size={15} /></span></article>)}</div></div></section><section id="about" className="na-about"><div className="na-wrap na-about-grid"><div><div className="na-overline">ABOUT NETATLAS</div><h2>A single source of truth for your network.</h2></div><p>NetAtlas is a centralized platform for documenting, visualizing, and monitoring network infrastructure. Give your operations team a clear, reliable view of every device and connection—without losing the context that keeps your network running.</p></div></section></main><footer className="na-footer"><div className="na-wrap na-footer-in"><Brand /><nav><a href="#home">Home</a><a href="#features">Features</a><a href="#about">About</a></nav><span>© 2026 NetAtlas.</span></div></footer></div></>;
+    return (
+        <>
+            <Head title="NETATLAS — Your Network. One Platform." />
+            <style>{landingCss}</style>
+            <div className="na">
+                <header className="na-header">
+                    <div className="na-wrap na-nav">
+                        <Brand />
+                        <nav className="na-links">
+                            <a href="#home">Home</a>
+                            <a href="#features">Features</a>
+                            <a href="#about">About</a>
+                        </nav>
+                        <div className="na-actions">
+                            {auth.user ? (
+                                <Link className="na-button" href={dashboardUrl}>
+                                    Dashboard
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link className="na-login" href={login()}>
+                                        Login
+                                    </Link>
+                                    <Link
+                                        className="na-button"
+                                        href={register()}
+                                    >
+                                        Get Started
+                                    </Link>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </header>
+                <main id="home">
+                    <section className="na-hero">
+                        <div className="na-wrap na-hero-grid">
+                            <div>
+                                <div className="na-eyebrow">
+                                    ✦ Enterprise network intelligence
+                                </div>
+                                <h1>
+                                    Your Network.
+                                    <br />
+                                    <span>One Platform.</span>
+                                </h1>
+                                <p className="na-kicker">
+                                    Manage. Visualize. Monitor.
+                                </p>
+                                <p className="na-copy">
+                                    Centralize your network infrastructure
+                                    management, visualize network topology, and
+                                    monitor device availability through one
+                                    unified platform.
+                                </p>
+                                <div className="na-hero-actions">
+                                    <Link
+                                        className="na-button"
+                                        href={mainAction}
+                                    >
+                                        {auth.user
+                                            ? 'Explore Platform'
+                                            : 'Get Started'}{' '}
+                                        <ArrowRight size={16} />
+                                    </Link>
+                                    <a
+                                        className="na-button na-button--secondary"
+                                        href="#features"
+                                    >
+                                        Explore Features
+                                    </a>
+                                </div>
+                                <div className="na-points">
+                                    <span className="na-point">
+                                        Unified visibility
+                                    </span>
+                                    <span className="na-point">
+                                        Operational clarity
+                                    </span>
+                                </div>
+                            </div>
+                            <NetworkMap />
+                        </div>
+                    </section>
+                    <section id="features" className="na-features">
+                        <div className="na-wrap">
+                            <div className="na-section-head">
+                                <div className="na-overline">
+                                    CORE CAPABILITIES
+                                </div>
+                                <h2>
+                                    Everything you need to run your network with
+                                    confidence.
+                                </h2>
+                                <p>
+                                    A clear and practical foundation for network
+                                    operations.
+                                </p>
+                            </div>
+                            <div className="na-cards">
+                                {featureData.map(
+                                    ({ icon: Icon, title, text }) => (
+                                        <article
+                                            className="na-card"
+                                            key={title}
+                                        >
+                                            <div className="na-icon">
+                                                <Icon size={23} />
+                                            </div>
+                                            <h3>{title}</h3>
+                                            <p>{text}</p>
+                                            <span>
+                                                Learn more{' '}
+                                                <ArrowRight size={15} />
+                                            </span>
+                                        </article>
+                                    ),
+                                )}
+                            </div>
+                        </div>
+                    </section>
+                    <section id="about" className="na-about">
+                        <div className="na-wrap na-about-grid">
+                            <div>
+                                <div className="na-overline">
+                                    ABOUT NETATLAS
+                                </div>
+                                <h2>
+                                    A single source of truth for your network.
+                                </h2>
+                            </div>
+                            <p>
+                                NetAtlas is a centralized platform for
+                                documenting, visualizing, and monitoring network
+                                infrastructure. Give your operations team a
+                                clear, reliable view of every device and
+                                connection—without losing the context that keeps
+                                your network running.
+                            </p>
+                        </div>
+                    </section>
+                </main>
+                <footer className="na-footer">
+                    <div className="na-wrap na-footer-in">
+                        <Brand />
+                        <nav>
+                            <a href="#home">Home</a>
+                            <a href="#features">Features</a>
+                            <a href="#about">About</a>
+                        </nav>
+                        <span>© 2026 NetAtlas.</span>
+                    </div>
+                </footer>
+            </div>
+        </>
+    );
 }

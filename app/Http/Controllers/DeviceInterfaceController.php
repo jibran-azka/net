@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Device;
 use App\Models\DeviceInterface;
+use App\Models\DeviceLink;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -30,6 +31,7 @@ class DeviceInterfaceController extends Controller
     {
         $this->ensureOwner($device);
         $this->ensureBelongsToDevice($device, $interface);
+        DeviceLink::where('source_interface_id', $interface->id)->orWhere('target_interface_id', $interface->id)->delete();
         $interface->delete();
 
         return back()->with('success', 'Interface berhasil dihapus.');

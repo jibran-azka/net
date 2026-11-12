@@ -34,6 +34,11 @@ export function AppSidebar() {
             href: '/devices',
             icon: Network,
         },
+        {
+            title: 'Network Topology',
+            href: '/network-topology',
+            icon: Network,
+        },
     ];
 
     const footerNavItems: NavItem[] = [

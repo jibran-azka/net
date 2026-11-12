@@ -25,6 +25,23 @@ class Device extends Model
         'description',
     ];
 
+    protected static function booted(): void
+    {
+        // SQL Server menolak dua jalur cascade menuju device_links, jadi link
+        // yang memakai interface perangkat ini dihapus lebih dulu di aplikasi.
+        static::deleting(function (Device $device) {
+            $interfaceIds = $device->interfaces()->pluck('id');
+
+            if ($interfaceIds->isNotEmpty()) {
+                DeviceLink::whereIn('source_interface_id', $interfaceIds)
+                    ->orWhereIn('target_interface_id', $interfaceIds)
+                    ->delete();
+            }
+
+            $device->topologyPositions()->delete();
+        });
+    }
+
     public function ipAddresses(): HasMany
     {
         return $this->hasMany(IpAddress::class);
@@ -38,5 +55,10 @@ class Device extends Model
     public function interfaces(): HasMany
     {
         return $this->hasMany(DeviceInterface::class);
+    }
+
+    public function topologyPositions(): HasMany
+    {
+        return $this->hasMany(TopologyPosition::class);
     }
 }
