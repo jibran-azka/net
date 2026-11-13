@@ -5,6 +5,7 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\DeviceInterfaceController;
 use App\Http\Controllers\IpAddressController;
 use App\Http\Controllers\NetworkTopologyController;
+use App\Http\Controllers\NetworkMonitoringController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,9 @@ Route::prefix('{current_team}')
     });
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/network-monitoring', [NetworkMonitoringController::class, 'index'])->name('monitoring.index');
+    Route::get('/network-monitoring/{device}', [NetworkMonitoringController::class, 'show'])->name('monitoring.show');
+    Route::put('/network-monitoring/{device}', [NetworkMonitoringController::class, 'update'])->name('monitoring.update');
     Route::get('/network-topology', [NetworkTopologyController::class, 'index'])->name('topology.index');
     Route::post('/network-topology/links', [NetworkTopologyController::class, 'storeLink'])->name('topology.links.store');
     Route::put('/network-topology/links/{link}', [NetworkTopologyController::class, 'updateLink'])->name('topology.links.update');

@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Network } from 'lucide-react';
+import { Activity, BookOpen, FolderGit2, LayoutGrid, Network } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -38,6 +38,11 @@ export function AppSidebar() {
             title: 'Network Topology',
             href: '/network-topology',
             icon: Network,
+        },
+        {
+            title: 'Network Monitoring',
+            href: '/network-monitoring',
+            icon: Activity,
         },
     ];
 

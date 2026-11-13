@@ -61,4 +61,14 @@ class Device extends Model
     {
         return $this->hasMany(TopologyPosition::class);
     }
+
+    public function monitoringConfig(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(MonitoringConfig::class);
+    }
+
+    public function monitoringResults(): HasMany
+    {
+        return $this->hasMany(MonitoringResult::class);
+    }
 }

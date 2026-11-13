@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
+import { Activity, BookOpen, Folder, LayoutGrid, Menu, Network, Search } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -69,6 +69,21 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
             title: 'Dashboard',
             href: dashboardUrl,
             icon: LayoutGrid,
+        },
+        {
+            title: 'Network Inventory',
+            href: '/devices',
+            icon: Network,
+        },
+        {
+            title: 'Network Topology',
+            href: '/network-topology',
+            icon: Network,
+        },
+        {
+            title: 'Network Monitoring',
+            href: '/network-monitoring',
+            icon: Activity,
         },
     ];
 

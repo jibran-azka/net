@@ -17,10 +17,10 @@ class DeviceInventoryTest extends TestCase
         $otherDevice = Device::factory()->for(User::factory())->create();
 
         $this->actingAs($user)->post(route('devices.store'), [
-            'name' => 'Core Switch', 'device_type' => 'switch', 'lifecycle_status' => 'active',
+            'name' => 'Office Laptop', 'device_type' => 'laptop', 'lifecycle_status' => 'active',
         ])->assertRedirect();
 
-        $this->assertDatabaseHas('devices', ['name' => 'Core Switch', 'user_id' => $user->id]);
+        $this->assertDatabaseHas('devices', ['name' => 'Office Laptop', 'device_type' => 'laptop', 'user_id' => $user->id]);
         $this->actingAs($user)->get(route('devices.show', $otherDevice))->assertNotFound();
     }
 

@@ -123,7 +123,7 @@ class DeviceController extends Controller
 
     private function deviceTypes(): array
     {
-        return ['router', 'switch', 'server', 'firewall', 'access_point', 'wireless_controller', 'modem', 'load_balancer', 'other'];
+        return ['router', 'switch', 'server', 'firewall', 'access_point', 'wireless_controller', 'modem', 'load_balancer', 'pc', 'laptop', 'other'];
     }
 
     private function statuses(): array
