@@ -8,6 +8,7 @@ use App\Models\DeviceLink;
 use App\Models\TopologyPosition;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class NetworkTopologyController extends Controller
@@ -73,22 +74,50 @@ class NetworkTopologyController extends Controller
             'label' => ['nullable', 'string', 'max:255'],
             'status' => ['required', Rule::in(['active', 'inactive', 'unknown'])],
             'notes' => ['nullable', 'string'],
+        ], [
+            'source_interface_id.required' => 'Pilih interface sumber terlebih dahulu.',
+            'source_interface_id.integer' => 'Interface sumber tidak valid. Pilih interface dari daftar yang tersedia.',
+            'source_interface_id.exists' => 'Interface sumber tidak ditemukan. Pastikan interface masih terdaftar pada perangkat asal.',
+            'target_interface_id.required' => 'Pilih interface tujuan terlebih dahulu.',
+            'target_interface_id.integer' => 'Interface tujuan tidak valid. Pilih interface dari daftar yang tersedia.',
+            'target_interface_id.exists' => 'Interface tujuan tidak ditemukan. Pastikan perangkat tujuan memiliki interface.',
+            'target_interface_id.different' => 'Interface sumber dan tujuan harus berbeda.',
+            'connection_type.required' => 'Pilih jenis koneksi terlebih dahulu.',
+            'connection_type.in' => 'Jenis koneksi tidak dikenali. Pilih Ethernet, Fiber, Wireless, Serial, atau Other.',
+            'label.string' => 'Label koneksi harus berupa teks.',
+            'label.max' => 'Label koneksi terlalu panjang. Maksimal 255 karakter.',
+            'status.required' => 'Pilih status koneksi terlebih dahulu.',
+            'status.in' => 'Status koneksi tidak valid. Pilih Active, Inactive, atau Unknown.',
+            'notes.string' => 'Catatan koneksi harus berupa teks.',
         ]);
     }
 
     private function validateInterfaces(array $data, ?DeviceLink $ignore = null): void
     {
-        $interfaces = DeviceInterface::with('device')->whereIn('id', [$data['source_interface_id'], $data['target_interface_id']])->get()->keyBy('id');
-        abort_unless($interfaces->count() === 2 && $interfaces->every(fn ($interface) => $interface->device->user_id === auth()->id()), 404);
+        $interfaces = DeviceInterface::with('device.latestMonitoringResult')->whereIn('id', [$data['source_interface_id'], $data['target_interface_id']])->get()->keyBy('id');
+        if (! $interfaces->has($data['source_interface_id'])) {
+            throw ValidationException::withMessages(['source_interface_id' => 'Interface sumber tidak ditemukan atau sudah dihapus dari inventory.']);
+        }
+        if (! $interfaces->has($data['target_interface_id'])) {
+            throw ValidationException::withMessages(['target_interface_id' => 'Interface tujuan tidak ditemukan. Tambahkan interface pada perangkat tujuan terlebih dahulu.']);
+        }
+        if ($interfaces->contains(fn ($interface) => (int) $interface->device->user_id !== (int) auth()->id())) {
+            throw ValidationException::withMessages(['target_interface_id' => 'Perangkat asal atau tujuan tidak dapat digunakan karena bukan bagian dari inventory akun ini.']);
+        }
+        $offline = $interfaces->filter(fn ($interface) => $interface->device->latestMonitoringResult?->status === 'offline');
+        if ($offline->isNotEmpty()) {
+            $names = $offline->pluck('device.name')->join(' dan ');
+            throw ValidationException::withMessages(['target_interface_id' => "Perangkat {$names} sedang offline berdasarkan monitoring terakhir, sehingga koneksi belum dapat dibuat."]);
+        }
         if ($interfaces[$data['source_interface_id']]->device_id === $interfaces[$data['target_interface_id']]->device_id) {
-            abort(422, 'Interfaces must belong to different devices.');
+            throw ValidationException::withMessages(['target_interface_id' => 'Perangkat asal dan tujuan harus berbeda. Kamu tidak dapat menghubungkan dua interface dari perangkat yang sama.']);
         }
         $duplicate = DeviceLink::query()->where(function ($query) use ($data) {
             $query->where('source_interface_id', $data['source_interface_id'])->where('target_interface_id', $data['target_interface_id'])
                 ->orWhere(fn ($query) => $query->where('source_interface_id', $data['target_interface_id'])->where('target_interface_id', $data['source_interface_id']));
         })->when($ignore, fn ($query) => $query->whereKeyNot($ignore->id))->exists();
         if ($duplicate) {
-            abort(422, 'Connection already exists.');
+            throw ValidationException::withMessages(['target_interface_id' => 'Koneksi antara kedua interface ini sudah ada. Pilih interface lain atau ubah koneksi yang sudah tersedia.']);
         }
     }
 

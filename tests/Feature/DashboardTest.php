@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Enums\TeamRole;
+use App\Models\Device;
+use App\Models\MonitoringResult;
 use App\Models\Team;
 use App\Models\TeamInvitation;
 use App\Models\User;
@@ -146,5 +148,31 @@ class DashboardTest extends TestCase
         $this->assertDatabaseHas('team_invitations', [
             'id' => $invitation->id,
         ]);
+    }
+
+    public function test_dashboard_uses_the_latest_owned_result_and_keeps_unmonitored_devices_unknown(): void
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $online = Device::factory()->create(['user_id' => $user->id, 'device_type' => 'router']);
+        $offline = Device::factory()->create(['user_id' => $user->id, 'device_type' => 'switch']);
+        Device::factory()->create(['user_id' => $user->id, 'device_type' => 'server']);
+        $otherDevice = Device::factory()->create(['user_id' => $otherUser->id]);
+
+        MonitoringResult::create(['device_id' => $online->id, 'status' => 'offline', 'latency' => null, 'packet_loss' => 100, 'packets_sent' => 4, 'packets_received' => 0, 'checked_at' => now()->subMinutes(2)]);
+        MonitoringResult::create(['device_id' => $online->id, 'status' => 'online', 'latency' => 12.5, 'packet_loss' => 0, 'packets_sent' => 4, 'packets_received' => 4, 'checked_at' => now()->subMinute()]);
+        MonitoringResult::create(['device_id' => $offline->id, 'status' => 'offline', 'latency' => null, 'packet_loss' => 100, 'packets_sent' => 4, 'packets_received' => 0, 'checked_at' => now()->subMinute()]);
+        MonitoringResult::create(['device_id' => $otherDevice->id, 'status' => 'online', 'latency' => 2, 'packet_loss' => 0, 'packets_sent' => 4, 'packets_received' => 4, 'checked_at' => now()->subMinute()]);
+
+        $response = $this->actingAs($user)->get(route('dashboard', ['current_team' => $user->currentTeam->slug]).'?period=24h');
+        $response->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('overview.total', 3)
+                ->where('overview.online', 1)
+                ->where('overview.offline', 1)
+                ->where('overview.notMonitored', 1)
+                ->where('availability.totalChecks', 3)
+                ->where('availability.onlineChecks', 1)
+                ->has('recentActivity', 3));
     }
 }

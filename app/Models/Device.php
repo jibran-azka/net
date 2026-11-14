@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Device extends Model
 {
@@ -62,7 +63,7 @@ class Device extends Model
         return $this->hasMany(TopologyPosition::class);
     }
 
-    public function monitoringConfig(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function monitoringConfig(): HasOne
     {
         return $this->hasOne(MonitoringConfig::class);
     }
@@ -70,5 +71,11 @@ class Device extends Model
     public function monitoringResults(): HasMany
     {
         return $this->hasMany(MonitoringResult::class);
+    }
+
+    /** The most recent ICMP result, if this device has ever been checked. */
+    public function latestMonitoringResult(): HasOne
+    {
+        return $this->hasOne(MonitoringResult::class)->latestOfMany('checked_at');
     }
 }

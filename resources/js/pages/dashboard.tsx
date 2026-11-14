@@ -1,52 +1,37 @@
-import { Head } from '@inertiajs/react';
+﻿import { Head, Link, router } from '@inertiajs/react';
+import { Activity, Box, CheckCircle2, Clock3, Gauge, Network, Server, TriangleAlert, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import PendingInvitationsModal from '@/components/pending-invitations-modal';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { dashboard } from '@/routes';
 import type { DashboardInvitation } from '@/types';
 
-type Props = {
-    pendingInvitations?: DashboardInvitation[];
-};
-
-export default function Dashboard({ pendingInvitations = [] }: Props) {
-    const [showInvitations, setShowInvitations] = useState(
-        pendingInvitations.length > 0,
-    );
-
-    return (
-        <>
-            <Head title="Dashboard" />
-            <PendingInvitationsModal
-                invitations={pendingInvitations}
-                open={pendingInvitations.length > 0 && showInvitations}
-                onOpenChange={setShowInvitations}
-            />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
-            </div>
-        </>
-    );
+type Result = { checkedAt: string; latency: number | null; packetLoss: number | null; status: string };
+type Health = Result & { id: number; name: string; deviceType: string };
+type ActivityItem = Result & { id: number; deviceId: number; deviceName: string; deviceType: string };
+type Props = { pendingInvitations?: DashboardInvitation[]; period: string; overview: { total: number; online: number; offline: number; notMonitored: number; deviceTypes: number }; availability: { onlineChecks: number; totalChecks: number }; distribution: { name: string; value: number }[]; history: Result[]; health: Health[]; recentActivity: ActivityItem[]; recentActivityPagination: { currentPage: number; lastPage: number; total: number }; };
+const periods = [{ value: '1h', label: 'Last 1 Hour' }, { value: '24h', label: 'Last 24 Hours' }, { value: '7d', label: 'Last 7 Days' }, { value: '30d', label: 'Last 30 Days' }];
+const colors = ['#2563eb', '#0ea5e9', '#14b8a6', '#8b5cf6', '#f59e0b', '#ec4899', '#64748b'];
+const statusClass = (status: string) => status === 'online' ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' : status === 'offline' ? 'bg-rose-50 text-rose-700 ring-rose-600/20' : 'bg-slate-100 text-slate-600 ring-slate-500/20';
+const statusLabel = (status: string) => status === 'online' ? 'Online' : status === 'offline' ? 'Offline' : 'Not monitored';
+const dateTime = (date: string | null) => date ? new Date(date).toLocaleString() : 'Never';
+function StatusBadge({ status }: { status: string }) { return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${statusClass(status)}`}>{statusLabel(status)}</span>; }
+function MetricCard({ title, value, note, icon, color }: { title: string; value: number; note: string; icon: React.ReactNode; color: string }) { return <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-start justify-between"><div><p className="text-sm font-medium text-slate-500">{title}</p><p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">{value}</p><p className="mt-1 text-xs text-slate-500">{note}</p></div><span className={`rounded-xl p-3 ${color}`}>{icon}</span></div></section>; }
+function EmptyChart() { return <div className="flex h-full flex-col items-center justify-center text-center text-slate-400"><Activity size={28} className="mb-2"/><p className="text-sm font-medium">No monitoring data in this period</p><p className="mt-1 text-xs">Run an ICMP check to populate the history.</p></div>; }
+function deviceTypeLabel(value: string) { return value.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()); }
+function DeviceDistributionChart({ distribution }: { distribution: { name: string; value: number }[] }) {
+ const maximum = Math.max(...distribution.map((item) => item.value), 1);
+ return distribution.length ? <div className="space-y-4 py-2">{distribution.map((item, index) => <div key={item.name} className="grid grid-cols-[minmax(100px,150px)_1fr_auto] items-center gap-3"><span className="truncate text-sm font-medium text-slate-600" title={deviceTypeLabel(item.name)}>{deviceTypeLabel(item.name)}</span><div className="h-3 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full transition-all" style={{ width: `${Math.max((item.value / maximum) * 100, 4)}%`, backgroundColor: colors[index % colors.length] }}/></div><span className="min-w-6 text-right text-sm font-bold text-slate-700">{item.value}</span></div>)}<p className="pt-1 text-xs text-slate-400">Number of devices</p></div> : <EmptyChart />;
 }
+function PerformanceChart({ title, color, dataKey, suffix, history }: { title: string; color: string; dataKey: 'latency' | 'packetLoss'; suffix: string; history: Result[] }) { const data = history.map((row) => ({ ...row, time: new Date(row.checkedAt).toLocaleString() })); return <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="mb-4"><h2 className="font-bold text-slate-900">{title}</h2><p className="text-xs text-slate-500">Based on actual ICMP checks in the selected period.</p></div><div className="h-64">{data.length ? <ResponsiveContainer width="100%" height="100%"><AreaChart data={data} margin={{ left: -18, right: 8 }}><defs><linearGradient id={`${dataKey}Fill`} x1="0" x2="0" y1="0" y2="1"><stop offset="5%" stopColor={color} stopOpacity={0.25}/><stop offset="95%" stopColor={color} stopOpacity={0}/></linearGradient></defs><XAxis dataKey="time" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} minTickGap={60}/><YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false}/><Tooltip formatter={(value) => [`${Number(value).toFixed(2)} ${suffix}`, title]} labelStyle={{ color: '#334155' }}/><Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} fill={`url(#${dataKey}Fill)`} connectNulls /></AreaChart></ResponsiveContainer> : <EmptyChart />}</div></section>; }
 
-Dashboard.layout = (props: { currentTeam?: { slug: string } | null }) => ({
-    breadcrumbs: [
-        {
-            title: 'Dashboard',
-            href: props.currentTeam ? dashboard(props.currentTeam.slug) : '/',
-        },
-    ],
-});
+export default function Dashboard({ pendingInvitations = [], period, overview, availability, distribution, history, health, recentActivity, recentActivityPagination }: Props) {
+ const [showInvitations, setShowInvitations] = useState(pendingInvitations.length > 0); const availabilityPercent = availability.totalChecks ? (availability.onlineChecks / availability.totalChecks) * 100 : null; const setPeriod = (value: string) => router.get(window.location.pathname, { period: value }, { preserveState: true, preserveScroll: true, replace: true });
+ return <><Head title="Infrastructure Dashboard"/><PendingInvitationsModal invitations={pendingInvitations} open={pendingInvitations.length > 0 && showInvitations} onOpenChange={setShowInvitations}/><main className="min-h-0 flex-1 bg-slate-50 p-4 pb-12 text-slate-900 md:p-7 md:pb-12"><header className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><div className="mb-2 flex items-center gap-2 text-blue-600"><Network size={20}/><span className="text-sm font-bold uppercase tracking-wider">NetAtlas NOC</span></div><h1 className="text-2xl font-bold tracking-tight md:text-3xl">Infrastructure Dashboard</h1><p className="mt-1 text-sm text-slate-500">A centralized view of your network inventory and ICMP health.</p></div><select value={period} onChange={(event) => setPeriod(event.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-600 shadow-sm outline-none ring-blue-500 focus:ring-2">{periods.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></header>
+ <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"><MetricCard title="Total Devices" value={overview.total} note="Devices in your inventory" icon={<Server size={22}/>} color="bg-blue-50 text-blue-600"/><MetricCard title="Online Devices" value={overview.online} note="Latest check is online" icon={<CheckCircle2 size={22}/>} color="bg-emerald-50 text-emerald-600"/><MetricCard title="Offline Devices" value={overview.offline} note="Latest check is offline" icon={<XCircle size={22}/>} color="bg-rose-50 text-rose-600"/><MetricCard title="Not Monitored" value={overview.notMonitored} note="No result has been recorded" icon={<Clock3 size={22}/>} color="bg-amber-50 text-amber-600"/><MetricCard title="Device Types" value={overview.deviceTypes} note="Distinct device categories" icon={<Box size={22}/>} color="bg-violet-50 text-violet-600"/></section>
+ <section className="mt-6 grid gap-5 xl:grid-cols-2"><PerformanceChart title="Latency History" color="#2563eb" dataKey="latency" suffix="ms" history={history}/><PerformanceChart title="Packet Loss History" color="#10b981" dataKey="packetLoss" suffix="%" history={history}/></section>
+ <section className="mt-6 grid gap-5 xl:grid-cols-3"><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="font-bold">Availability</h2><p className="mt-1 text-xs text-slate-500">Online checks / all actual checks in this period.</p><div className="mt-6 flex items-end gap-3"><p className="text-4xl font-bold text-slate-900">{availabilityPercent === null ? '-' : `${availabilityPercent.toFixed(1)}%`}</p><p className="pb-1 text-sm text-slate-500">{availability.onlineChecks} / {availability.totalChecks} checks</p></div><div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-blue-600" style={{ width: `${availabilityPercent ?? 0}%` }}/></div><p className="mt-4 text-xs leading-5 text-slate-500">Periods without recorded checks are excluded; they are never treated as online.</p></section><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm xl:col-span-2"><h2 className="font-bold">Device Distribution</h2><p className="mt-1 text-xs text-slate-500">Inventory grouped by device type.</p><div className="mt-3"><DeviceDistributionChart distribution={distribution}/></div></section></section>
+ <section className="mt-6 grid gap-5 xl:grid-cols-5"><section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm xl:col-span-3"><div className="flex items-center gap-3 border-b border-slate-100 p-5"><span className="rounded-lg bg-rose-50 p-2 text-rose-600"><TriangleAlert size={20}/></span><div><h2 className="font-bold">Device Health</h2><p className="text-xs text-slate-500">Offline devices and devices without a recorded check.</p></div></div>{health.length ? <div className="overflow-x-auto"><table className="w-full min-w-170 text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr><th className="p-3 px-5">Device</th><th className="p-3">Status</th><th className="p-3">Latency</th><th className="p-3">Packet loss</th><th className="p-3 pr-5">Last checked</th></tr></thead><tbody>{health.map((device) => <tr key={device.id} className="border-t border-slate-100"><td className="p-3 px-5"><Link href={`/devices/${device.id}`} className="font-semibold text-blue-600 hover:underline">{device.name}</Link><p className="mt-0.5 text-xs text-slate-500">{device.deviceType}</p></td><td className="p-3"><StatusBadge status={device.status}/></td><td className="p-3 text-slate-600">{device.latency == null ? '-' : `${device.latency} ms`}</td><td className="p-3 text-slate-600">{device.packetLoss == null ? '-' : `${device.packetLoss}%`}</td><td className="p-3 pr-5 text-xs text-slate-500">{dateTime(device.checkedAt)}</td></tr>)}</tbody></table></div> : <p className="p-8 text-center text-sm text-slate-500">All monitored devices are currently online.</p>}</section><section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm xl:col-span-2"><div className="flex items-center gap-3 border-b border-slate-100 p-5"><span className="rounded-lg bg-blue-50 p-2 text-blue-600"><Gauge size={20}/></span><div><h2 className="font-bold">Recent Monitoring Activity</h2><p className="text-xs text-slate-500">Latest monitoring checks  |  5 per page.</p></div></div>{recentActivity.length ? <ul className="divide-y divide-slate-100">{recentActivity.map((item) => <li key={item.id} className="flex items-start justify-between gap-3 p-4"><div className="min-w-0"><Link href={`/network-monitoring/${item.deviceId}`} className="block truncate text-sm font-semibold text-blue-600 hover:underline">{item.deviceName}</Link><p className="mt-1 text-xs text-slate-500">{item.latency == null ? '-' : `${item.latency} ms`} Ãƒâ€š |  {item.packetLoss == null ? '-' : `${item.packetLoss}% loss`} Ãƒâ€š |  {dateTime(item.checkedAt)}</p></div><StatusBadge status={item.status}/></li>)}</ul> : <p className="p-8 text-center text-sm text-slate-500">No monitoring activity yet.</p>}{recentActivityPagination.lastPage > 1 && <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-xs"><span className="text-slate-500">Page {recentActivityPagination.currentPage} of {recentActivityPagination.lastPage}</span><div className="flex gap-2"><button type="button" disabled={recentActivityPagination.currentPage <= 1} onClick={() => router.get(window.location.pathname, { period, activity_page: recentActivityPagination.currentPage - 1 }, { preserveState: true, preserveScroll: true, replace: true })} className="rounded-md border px-2.5 py-1.5 font-medium text-slate-600 disabled:cursor-not-allowed disabled:opacity-40">Previous</button><button type="button" disabled={recentActivityPagination.currentPage >= recentActivityPagination.lastPage} onClick={() => router.get(window.location.pathname, { period, activity_page: recentActivityPagination.currentPage + 1 }, { preserveState: true, preserveScroll: true, replace: true })} className="rounded-md border px-2.5 py-1.5 font-medium text-slate-600 disabled:cursor-not-allowed disabled:opacity-40">Next</button></div></div>}</section></section></main></>;
+}
+Dashboard.layout = (props: { currentTeam?: { slug: string } | null }) => ({ breadcrumbs: [{ title: 'Dashboard', href: props.currentTeam ? dashboard(props.currentTeam.slug) : '/' }] });
+
