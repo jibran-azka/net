@@ -19,6 +19,7 @@ class NetworkTopologyController extends Controller
         $devices = Device::query()->where('user_id', $userId)->with([
             'ipAddresses',
             'interfaces',
+            'latestMonitoringResult:id,device_id,status,latency,checked_at',
             'topologyPositions' => fn ($query) => $query->where('user_id', $userId),
         ])->orderBy('name')->get();
         $links = DeviceLink::query()->with(['sourceInterface.device', 'targetInterface.device'])

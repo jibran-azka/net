@@ -67,7 +67,7 @@ export default function DeviceForm({
                         Device Type *
                     </label>
                     <select
-                        className="w-full rounded-lg border p-2"
+                        className="w-full rounded-lg border p-2 uppercase"
                         value={form.data.device_type}
                         onChange={(e) =>
                             form.setData('device_type', e.target.value)
@@ -75,7 +75,7 @@ export default function DeviceForm({
                     >
                         {deviceTypes.map((type) => (
                             <option key={type} value={type}>
-                                {type.replaceAll('_', ' ')}
+                                {type.replaceAll('_', ' ').toUpperCase()}
                             </option>
                         ))}
                     </select>
@@ -90,7 +90,7 @@ export default function DeviceForm({
                         Lifecycle Status *
                     </label>
                     <select
-                        className="w-full rounded-lg border p-2"
+                        className="w-full rounded-lg border p-2 uppercase"
                         value={form.data.lifecycle_status}
                         onChange={(e) =>
                             form.setData('lifecycle_status', e.target.value)
@@ -98,7 +98,7 @@ export default function DeviceForm({
                     >
                         {statuses.map((status) => (
                             <option key={status} value={status}>
-                                {status}
+                                {status.toUpperCase()}
                             </option>
                         ))}
                     </select>
