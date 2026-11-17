@@ -6,6 +6,8 @@ use App\Http\Controllers\DeviceInterfaceController;
 use App\Http\Controllers\IpAddressController;
 use App\Http\Controllers\NetworkTopologyController;
 use App\Http\Controllers\NetworkMonitoringController;
+use App\Http\Controllers\AlertController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +22,12 @@ Route::prefix('{current_team}')
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/network-monitoring', [NetworkMonitoringController::class, 'index'])->name('monitoring.index');
+    Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
+    Route::patch('/alerts/{alert}/acknowledge', [AlertController::class, 'acknowledge'])->name('alerts.acknowledge');
+    Route::patch('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])->name('alerts.resolve');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::get('/network-monitoring/{device}', [NetworkMonitoringController::class, 'show'])->name('monitoring.show');
     Route::put('/network-monitoring/{device}', [NetworkMonitoringController::class, 'update'])->name('monitoring.update');
     Route::get('/network-topology', [NetworkTopologyController::class, 'index'])->name('topology.index');

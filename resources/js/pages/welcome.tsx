@@ -30,7 +30,7 @@ function Brand() {
             <span className="na-mark">
                 <Network size={20} />
             </span>
-            NETATLAS
+            TOPOLY
         </Link>
     );
 }
@@ -172,7 +172,7 @@ export default function Welcome() {
     const mainAction = auth.user ? dashboardUrl : register();
     return (
         <>
-            <Head title="NETATLAS — Your Network. One Platform." />
+            <Head title="TOPOLY — Your Network. One Platform." />
             <style>{landingCss}</style>
             <div className="na">
                 <header className="na-header">
@@ -295,14 +295,14 @@ export default function Welcome() {
                         <div className="na-wrap na-about-grid">
                             <div>
                                 <div className="na-overline">
-                                    ABOUT NETATLAS
+                                    ABOUT TOPOLY
                                 </div>
                                 <h2>
                                     A single source of truth for your network.
                                 </h2>
                             </div>
                             <p>
-                                NetAtlas is a centralized platform for
+                                Topoly is a centralized platform for
                                 documenting, visualizing, and monitoring network
                                 infrastructure. Give your operations team a
                                 clear, reliable view of every device and
@@ -320,7 +320,7 @@ export default function Welcome() {
                             <a href="#features">Features</a>
                             <a href="#about">About</a>
                         </nav>
-                        <span>© 2026 NetAtlas.</span>
+                        <span>© 2026 Topoly.</span>
                     </div>
                 </footer>
             </div>

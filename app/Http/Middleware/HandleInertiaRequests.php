@@ -46,6 +46,12 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
+            'notifications' => fn () => $user ? [
+                'unread_count' => $user->unreadNotifications()->count(),
+                'recent' => $user->notifications()->reorder('created_at', 'desc')->limit(8)->get()->map(fn ($notification) => [
+                    'id' => $notification->id, 'read_at' => $notification->read_at, 'created_at' => $notification->created_at, ...$notification->data,
+                ])->values(),
+            ] : ['unread_count' => 0, 'recent' => []],
         ];
     }
 }

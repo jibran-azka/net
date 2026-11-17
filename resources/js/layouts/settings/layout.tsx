@@ -1,83 +1,66 @@
-import { Link } from '@inertiajs/react';
-import type { PropsWithChildren } from 'react';
-import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { useCurrentUrl } from '@/hooks/use-current-url';
-import { cn, toUrl } from '@/lib/utils';
-import { edit as editAppearance } from '@/routes/appearance';
-import { edit } from '@/routes/profile';
-import { edit as editSecurity } from '@/routes/security';
-import { index as teams } from '@/routes/teams';
-import type { NavItem } from '@/types';
+import { Link } from "@inertiajs/react";
+import type { PropsWithChildren } from "react";
+import { useCurrentUrl } from "@/hooks/use-current-url";
+import { cn, toUrl } from "@/lib/utils";
+import { edit } from "@/routes/profile";
+import type { NavItem } from "@/types";
+
+const SERIF = "'Playfair Display', Georgia, serif";
 
 const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        href: edit(),
-        icon: null,
-    },
-    {
-        title: 'Security',
-        href: editSecurity(),
-        icon: null,
-    },
-    {
-        title: 'Teams',
-        href: teams(),
-        icon: null,
-    },
-    {
-        title: 'Appearance',
-        href: editAppearance(),
-        icon: null,
-    },
+    { title: "Profile", href: edit(), icon: null },
 ];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
     const { isCurrentOrParentUrl } = useCurrentUrl();
 
     return (
-        <div className="px-4 py-6">
-            <Heading
-                title="Settings"
-                description="Manage your profile and account settings"
-            />
+        <div className="min-h-0 flex-1 bg-slate-50 p-4 pb-12 text-slate-900 md:p-8">
+            <header className="mb-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-700">
+                    Workspace
+                </p>
+                <h1
+                    className="mt-2 text-4xl leading-tight text-slate-900 md:text-5xl"
+                    style={{ fontFamily: SERIF, fontWeight: 700 }}
+                >
+                    Settings
+                </h1>
+                <p
+                    className="mt-3 text-base italic text-slate-500"
+                    style={{ fontFamily: SERIF }}
+                >
+                    Manage your profile, security, and workspace preferences.
+                </p>
+            </header>
 
-            <div className="flex flex-col lg:flex-row lg:space-x-12">
-                <aside className="w-full max-w-xl lg:w-48">
-                    <nav
-                        className="flex flex-col space-y-1 space-x-0"
-                        aria-label="Settings"
-                    >
-                        {sidebarNavItems.map((item, index) => (
-                            <Button
-                                key={`${toUrl(item.href)}-${index}`}
-                                size="sm"
-                                variant="ghost"
-                                asChild
-                                className={cn('w-full justify-start', {
-                                    'bg-muted': isCurrentOrParentUrl(item.href),
-                                })}
-                            >
-                                <Link href={item.href}>
-                                    {item.icon && (
-                                        <item.icon className="h-4 w-4" />
+            <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+                <aside className="h-fit rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+                    <nav className="flex flex-col gap-1" aria-label="Settings">
+                        {sidebarNavItems.map((item, index) => {
+                            const active = isCurrentOrParentUrl(item.href);
+
+                            return (
+                                <Link
+                                    key={`${toUrl(item.href)}-${index}`}
+                                    href={item.href}
+                                    className={cn(
+                                        "flex h-10 items-center rounded-xl px-3 text-sm font-medium transition-colors",
+                                        active
+                                            ? "bg-blue-700 font-semibold text-white shadow-md shadow-blue-700/20"
+                                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
                                     )}
+                                >
                                     {item.title}
                                 </Link>
-                            </Button>
-                        ))}
+                            );
+                        })}
                     </nav>
                 </aside>
 
-                <Separator className="my-6 lg:hidden" />
-
-                <div className="flex-1 md:max-w-2xl">
-                    <section className="max-w-xl space-y-12">
-                        {children}
-                    </section>
-                </div>
+                <section className="min-w-0 space-y-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+                    {children}
+                </section>
             </div>
         </div>
     );

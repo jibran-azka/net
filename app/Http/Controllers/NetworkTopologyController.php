@@ -7,6 +7,7 @@ use App\Models\DeviceInterface;
 use App\Models\DeviceLink;
 use App\Models\TopologyPosition;
 use Illuminate\Http\Request;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -103,7 +104,11 @@ class NetworkTopologyController extends Controller
             throw ValidationException::withMessages(['target_interface_id' => 'Interface tujuan tidak ditemukan. Tambahkan interface pada perangkat tujuan terlebih dahulu.']);
         }
         if ($interfaces->contains(fn ($interface) => (int) $interface->device->user_id !== (int) auth()->id())) {
-            throw ValidationException::withMessages(['target_interface_id' => 'Perangkat asal atau tujuan tidak dapat digunakan karena bukan bagian dari inventory akun ini.']);
+            $message = 'Perangkat asal atau tujuan tidak dapat digunakan karena bukan bagian dari inventory akun ini.';
+            if (! request()->header('X-Inertia') && ! request()->expectsJson()) {
+                abort(404);
+            }
+            throw ValidationException::withMessages(['target_interface_id' => $message]);
         }
         $offline = $interfaces->filter(fn ($interface) => $interface->device->latestMonitoringResult?->status === 'offline');
         if ($offline->isNotEmpty()) {
@@ -118,7 +123,11 @@ class NetworkTopologyController extends Controller
                 ->orWhere(fn ($query) => $query->where('source_interface_id', $data['target_interface_id'])->where('target_interface_id', $data['source_interface_id']));
         })->when($ignore, fn ($query) => $query->whereKeyNot($ignore->id))->exists();
         if ($duplicate) {
-            throw ValidationException::withMessages(['target_interface_id' => 'Koneksi antara kedua interface ini sudah ada. Pilih interface lain atau ubah koneksi yang sudah tersedia.']);
+            $message = 'Koneksi antara kedua interface ini sudah ada. Pilih interface lain atau ubah koneksi yang sudah tersedia.';
+            if (! request()->header('X-Inertia') && ! request()->expectsJson()) {
+                throw new HttpResponseException(response()->json(['message' => $message, 'errors' => ['target_interface_id' => [$message]]], 422));
+            }
+            throw ValidationException::withMessages(['target_interface_id' => $message]);
         }
     }
 

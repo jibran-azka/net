@@ -16,8 +16,10 @@ class DashboardController extends Controller
         $period = $request->validate([
             'period' => ['nullable', 'in:1h,24h,7d,30d'],
             'activity_page' => ['nullable', 'integer', 'min:1'],
+            'health_page' => ['nullable', 'integer', 'min:1'],
         ])['period'] ?? '24h';
         $activityPage = (int) ($request->input('activity_page', 1));
+        $healthRequestedPage = (int) ($request->input('health_page', 1));
         $from = match ($period) {
             '1h' => now()->subHour(),
             '7d' => now()->subDays(7),
@@ -35,6 +37,13 @@ class DashboardController extends Controller
         $periodResultQuery = (clone $resultQuery)->where('checked_at', '>=', $from);
 
         $email = strtolower($request->user()->email);
+
+        // Device Health lists offline devices and devices without a recorded check, five per page.
+        $healthDevices = $devices
+            ->filter(fn (Device $device) => ! $device->latestMonitoringResult || $device->latestMonitoringResult->status === 'offline')
+            ->values();
+        $healthLastPage = max(1, (int) ceil($healthDevices->count() / 5));
+        $healthPage = min(max(1, $healthRequestedPage), $healthLastPage);
 
         $pendingInvitations = TeamInvitation::query()
             ->with(['inviter', 'team'])
@@ -89,11 +98,15 @@ class DashboardController extends Controller
                     'packetLoss' => $result->packet_loss,
                     'status' => $result->status,
                 ]),
-            'health' => $devices
-                ->filter(fn (Device $device) => ! $device->latestMonitoringResult || $device->latestMonitoringResult->status === 'offline')
-                ->take(12)
+            'health' => $healthDevices
+                ->forPage($healthPage, 5)
                 ->values()
                 ->map(fn (Device $device) => $this->deviceHealth($device)),
+            'healthPagination' => [
+                'currentPage' => $healthPage,
+                'lastPage' => $healthLastPage,
+                'total' => $healthDevices->count(),
+            ],
             'recentActivity' => ($recentActivity = (clone $resultQuery)
                 ->with('device:id,name,device_type')
                 ->latest('checked_at')

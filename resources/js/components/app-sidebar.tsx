@@ -1,102 +1,133 @@
-import { Link, usePage } from '@inertiajs/react';
-import type { CSSProperties } from 'react';
-import { Activity, Boxes, LayoutDashboard, Network, Settings2 } from 'lucide-react';
-import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
+import { Link, usePage } from "@inertiajs/react";
+import type { CSSProperties } from "react";
+import {
+    Activity,
+    Boxes,
+    CircleAlert,
+    LayoutDashboard,
+    Network,
+    Settings2,
+} from "lucide-react";
+import {
+    NAV_ITEM_CLASS,
+    NAV_LABEL_CLASS,
+    NavMain,
+} from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
-    SidebarHeader,
     SidebarGroup,
     SidebarGroupLabel,
+    SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarSeparator,
-} from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
-import type { NavItem } from '@/types';
+} from "@/components/ui/sidebar";
+import { dashboard } from "@/routes";
+import type { NavItem } from "@/types";
+
+const SERIF = "'Playfair Display', Georgia, serif";
 
 export function AppSidebar() {
     const page = usePage();
     const dashboardUrl = page.props.currentTeam
         ? dashboard(page.props.currentTeam.slug)
-        : '/';
+        : "/";
 
     const mainNavItems: NavItem[] = [
+        { title: "Dashboard", href: dashboardUrl, icon: LayoutDashboard },
+        { title: "Network Inventory", href: "/devices", icon: Boxes },
+        { title: "Network Topology", href: "/network-topology", icon: Network },
         {
-            title: 'Dashboard',
-            href: dashboardUrl,
-            icon: LayoutDashboard,
-        },
-        {
-            title: 'Network Inventory',
-            href: '/devices',
-            icon: Boxes,
-        },
-        {
-            title: 'Network Topology',
-            href: '/network-topology',
-            icon: Network,
-        },
-        {
-            title: 'Network Monitoring',
-            href: '/network-monitoring',
+            title: "Network Monitoring",
+            href: "/network-monitoring",
             icon: Activity,
         },
+        { title: "Alert Management", href: "/alerts", icon: CircleAlert },
     ];
 
     const utilityNavItems: NavItem[] = [
-        {
-            title: 'Settings',
-            href: '/settings/profile',
-            icon: Settings2,
-        },
+        { title: "Settings", href: "/settings/profile", icon: Settings2 },
     ];
 
     return (
         <Sidebar
             collapsible="icon"
             variant="sidebar"
-            className="border-r border-[#173b69] bg-[#0b2347]"
-            style={{
-                '--sidebar': '#0b2347',
-                '--sidebar-foreground': '#dcecff',
-                '--sidebar-primary': '#7ab4ff',
-                '--sidebar-primary-foreground': '#0b2347',
-                '--sidebar-accent': '#173b69',
-                '--sidebar-accent-foreground': '#ffffff',
-                '--sidebar-border': '#294c79',
-            } as CSSProperties}
+            className="border-r border-slate-200 bg-white"
+            style={
+                {
+                    "--sidebar": "#ffffff",
+                    "--sidebar-foreground": "#334155",
+                    "--sidebar-primary": "#1d4ed8",
+                    "--sidebar-primary-foreground": "#ffffff",
+                    "--sidebar-accent": "#f1f5f9",
+                    "--sidebar-accent-foreground": "#0f172a",
+                    "--sidebar-border": "#e2e8f0",
+                    "--sidebar-width-icon": "9.5rem",
+                } as CSSProperties
+            }
         >
-            <SidebarHeader className="p-4 pb-3">
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild className="h-14 rounded-2xl px-2 hover:bg-[#173b69]">
-                            <Link href={dashboardUrl} prefetch>
-                                <span className="relative flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-[#7ab4ff] text-[#0b2347] shadow-[0_8px_18px_rgba(122,180,255,0.25)]"><Network className="size-5" strokeWidth={2.3} /><span className="absolute -right-1 -top-1 size-2 rounded-full bg-[#74e0ad] ring-2 ring-[#0b2347]" /></span>
-                                <span className="ml-1 grid min-w-0 flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden"><span className="truncate text-[15px] font-extrabold tracking-[0.15em] text-white">NETATLAS</span><span className="mt-0.5 truncate text-[10px] font-semibold uppercase tracking-[0.13em] text-[#8eb2dc]">Network intelligence</span></span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
+            <SidebarHeader className="px-6 pt-7 pb-6 group-data-[collapsible=icon]:px-5">
+                <Link
+                    href={dashboardUrl}
+                    prefetch
+                    className="flex flex-col items-start gap-2.5"
+                >
+                    <span
+                        className="whitespace-nowrap text-3xl leading-tight tracking-normal text-slate-900"
+                        style={{ fontFamily: SERIF, fontWeight: 700 }}
+                    >
+                        Topoly
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                        Network Intelligence
+                    </span>
+                </Link>
             </SidebarHeader>
-            <SidebarSeparator className="mx-4 w-auto bg-[#294c79]" />
+            <div className="mx-6 h-px bg-slate-200" />
 
-            <SidebarContent className="px-2 pt-3">
+            <SidebarContent className="pt-5">
                 <NavMain items={mainNavItems} />
-                <SidebarGroup className="mt-auto px-2 py-4">
-                    <SidebarGroupLabel className="px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#7194bc]">Workspace</SidebarGroupLabel>
-                    <SidebarMenu>{utilityNavItems.map((item) => <SidebarMenuItem key={item.title}><SidebarMenuButton asChild tooltip={{ children: item.title }} className="h-10 rounded-xl text-[#9fb9d8] hover:bg-[#173b69] hover:text-white"><Link href={item.href} prefetch>{item.icon && <item.icon className="size-[18px]" />}<span>{item.title}</span></Link></SidebarMenuButton></SidebarMenuItem>)}</SidebarMenu>
+
+                <SidebarGroup className="mt-auto px-3 py-2">
+                    <SidebarGroupLabel className={NAV_LABEL_CLASS}>
+                        Workspace
+                    </SidebarGroupLabel>
+                    <SidebarMenu className="mt-1 gap-1">
+                        {utilityNavItems.map((item) => (
+                            <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton
+                                    asChild
+                                    tooltip={{ children: item.title }}
+                                    className={NAV_ITEM_CLASS}
+                                >
+                                    <Link href={item.href} prefetch>
+                                        {item.icon && <item.icon />}
+                                        <span className="truncate">
+                                            {item.title}
+                                        </span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
                 </SidebarGroup>
-                <div className="mx-2 mb-3 rounded-2xl border border-[#315681] bg-[#102e59] p-3 group-data-[collapsible=icon]:hidden">
-                    <div className="flex items-center gap-2"><span className="flex size-7 items-center justify-center rounded-lg bg-[#1d4b82] text-[#82baff]"><Activity className="size-4" /></span><span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#b8d6fa]">Network status</span></div>
-                    <div className="mt-3 flex items-center gap-2 text-xs text-[#c7d8ed]"><span className="size-2 rounded-full bg-[#74e0ad] shadow-[0_0_0_4px_rgba(116,224,173,0.12)]" /> Monitoring ready</div>
+
+                <div className="mx-3 mt-4 mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 group-data-[collapsible=icon]:hidden">
+                    <p className="text-sm font-semibold text-slate-900">
+                        Network Status
+                    </p>
+                    <p className="mt-1 flex items-center gap-2 text-xs text-slate-500">
+                        <span className="size-2 shrink-0 rounded-full bg-emerald-500 ring-4 ring-emerald-100" />
+                        Monitoring ready
+                    </p>
                 </div>
             </SidebarContent>
 
-            <SidebarFooter className="border-t border-[#294c79] p-3">
+            <SidebarFooter className="border-t border-slate-200 p-3">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

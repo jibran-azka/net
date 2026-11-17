@@ -73,6 +73,11 @@ class Device extends Model
         return $this->hasMany(MonitoringResult::class);
     }
 
+    public function alerts(): HasMany
+    {
+        return $this->hasMany(Alert::class);
+    }
+
     /** The most recent ICMP result, if this device has ever been checked. */
     public function latestMonitoringResult(): HasOne
     {

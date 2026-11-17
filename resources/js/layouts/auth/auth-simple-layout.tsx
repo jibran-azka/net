@@ -11,7 +11,7 @@ function Brand() {
     return (
         <Link href={home()} className="na-auth-brand">
             <span className="na-auth-mark"><Network size={20} /></span>
-            NETATLAS
+            TOPOLY
         </Link>
     );
 }
