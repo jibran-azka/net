@@ -108,7 +108,7 @@ export default function Index({
                     />
                 </div>
                 <div className="overflow-x-auto rounded-xl border">
-                    <table className="w-full text-left">
+                    <table className="w-full text-left uppercase">
                         <thead className="bg-gray-50">
                             <tr>
                                 {[
@@ -163,12 +163,6 @@ export default function Index({
                                             </span>
                                         </td>
                                         <td className="p-3 whitespace-nowrap">
-                                            <Link
-                                                className="mr-3 text-blue-600"
-                                                href={`/devices/${device.id}`}
-                                            >
-                                                View
-                                            </Link>
                                             <Link
                                                 className="mr-3 text-blue-600"
                                                 href={`/devices/${device.id}/edit`}

@@ -68,21 +68,20 @@ class DeviceController extends Controller
     {
         $this->ensureOwner($device);
 
-        $device->load([
-            'ipAddresses',
-            'interfaces',
-        ]);
-
-        return Inertia::render('Devices/Show', [
-            'device' => $device,
-        ]);
+        // Device details, IP addresses, and interfaces are all managed from
+        // one screen to avoid splitting a device's configuration across views.
+        return redirect()->route('devices.edit', $device);
     }
 
     public function edit(Device $device)
     {
         $this->ensureOwner($device);
 
-        return Inertia::render('Devices/Edit', ['device' => $device, 'deviceTypes' => $this->deviceTypes(), 'statuses' => $this->statuses()]);
+        return Inertia::render('Devices/Edit', [
+            'device' => $device->load(['ipAddresses', 'interfaces']),
+            'deviceTypes' => $this->deviceTypes(),
+            'statuses' => $this->statuses(),
+        ]);
     }
 
     public function update(Request $request, Device $device)
@@ -90,7 +89,7 @@ class DeviceController extends Controller
         $this->ensureOwner($device);
         $device->update($this->validated($request));
 
-        return redirect()->route('devices.show', $device)->with('success', 'Device berhasil diperbarui.');
+        return redirect()->route('devices.edit', $device)->with('success', 'Device berhasil diperbarui.');
     }
 
     public function destroy(Device $device)

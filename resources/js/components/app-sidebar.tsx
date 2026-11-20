@@ -24,6 +24,7 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarRail,
 } from "@/components/ui/sidebar";
 import { dashboard } from "@/routes";
 import type { NavItem } from "@/types";
@@ -66,11 +67,11 @@ export function AppSidebar() {
                     "--sidebar-accent": "#f1f5f9",
                     "--sidebar-accent-foreground": "#0f172a",
                     "--sidebar-border": "#e2e8f0",
-                    "--sidebar-width-icon": "9.5rem",
+                    "--sidebar-width-icon": "3.5rem",
                 } as CSSProperties
             }
         >
-            <SidebarHeader className="px-6 pt-7 pb-6 group-data-[collapsible=icon]:px-5">
+            <SidebarHeader className="px-6 pt-7 pb-6 transition-[height,padding] duration-200 ease-linear group-data-[collapsible=icon]:h-0 group-data-[collapsible=icon]:overflow-hidden group-data-[collapsible=icon]:p-0">
                 <Link
                     href={dashboardUrl}
                     prefetch
@@ -87,8 +88,7 @@ export function AppSidebar() {
                     </span>
                 </Link>
             </SidebarHeader>
-            <div className="mx-6 h-px bg-slate-200" />
-
+            <div className="mx-6 h-px bg-slate-200 group-data-[collapsible=icon]:hidden" />
             <SidebarContent className="pt-5">
                 <NavMain items={mainNavItems} />
 
@@ -116,20 +116,12 @@ export function AppSidebar() {
                     </SidebarMenu>
                 </SidebarGroup>
 
-                <div className="mx-3 mt-4 mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-semibold text-slate-900">
-                        Network Status
-                    </p>
-                    <p className="mt-1 flex items-center gap-2 text-xs text-slate-500">
-                        <span className="size-2 shrink-0 rounded-full bg-emerald-500 ring-4 ring-emerald-100" />
-                        Monitoring ready
-                    </p>
-                </div>
             </SidebarContent>
 
             <SidebarFooter className="border-t border-slate-200 p-3">
                 <NavUser />
             </SidebarFooter>
+            <SidebarRail />
         </Sidebar>
     );
 }

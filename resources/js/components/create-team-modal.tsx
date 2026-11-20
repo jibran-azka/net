@@ -1,6 +1,6 @@
-import { Form } from '@inertiajs/react';
+import { Form, usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +19,14 @@ import { store } from '@/routes/teams';
 
 export default function CreateTeamModal({ children }: PropsWithChildren) {
     const [open, setOpen] = useState(false);
+    const { url } = usePage();
+
+    // The sidebar remains mounted between Inertia page visits. Close this
+    // global dialog whenever navigation occurs so it cannot cover another
+    // page (such as Network Topology) with stale modal state.
+    useEffect(() => {
+        setOpen(false);
+    }, [url]);
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>

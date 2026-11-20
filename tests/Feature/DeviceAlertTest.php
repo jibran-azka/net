@@ -31,6 +31,11 @@ class DeviceAlertTest extends TestCase
 
         $this->assertDatabaseCount('alerts', 1);
         $this->assertDatabaseHas('alerts', ['device_id' => $device->id, 'status' => 'active', 'severity' => 'critical', 'alert_type' => 'device_offline']);
+        $notification = $device->user->notifications()->sole();
+
+        $this->assertSame('Device Offline', $notification->data['title']);
+        $this->assertSame($device->id, $notification->data['device_id']);
+        $this->assertSame('critical', $notification->data['severity']);
     }
 
     public function test_recovery_resolves_the_active_alert_and_a_later_outage_creates_a_new_alert(): void
@@ -45,6 +50,7 @@ class DeviceAlertTest extends TestCase
         }
 
         $this->assertDatabaseCount('alerts', 2);
+        $this->assertDatabaseCount('notifications', 2);
         $this->assertDatabaseHas('alerts', ['device_id' => $device->id, 'status' => 'resolved']);
         $this->assertDatabaseHas('alerts', ['device_id' => $device->id, 'status' => 'active']);
     }

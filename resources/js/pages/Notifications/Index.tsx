@@ -3,8 +3,10 @@ import { Bell, CheckCheck, CircleAlert } from "lucide-react";
 type Notice = {
     id: string;
     alert_id?: number;
+    device_id?: number;
     title?: string;
     message?: string;
+    severity?: string;
     read_at: string | null;
     created_at: string;
 };
@@ -23,8 +25,12 @@ const pageLabel = (label: string) =>
           : label;
 export default function Notifications({
     notifications,
+    filter,
+    unreadCount,
 }: {
     notifications: Page;
+    filter: "all" | "unread";
+    unreadCount: number;
 }) {
     const date = (v: string) => new Date(v).toLocaleString();
     const read = (n: Notice) =>
@@ -59,11 +65,34 @@ export default function Notifications({
                                 { preserveScroll: true },
                             )
                         }
-                        className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600"
+                        disabled={unreadCount === 0}
+                        className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <CheckCheck size={15} /> Mark all as read
                     </button>
                 </header>
+                <div className="mb-4 flex items-center gap-2">
+                    {[
+                        { value: "all", label: "All" },
+                        { value: "unread", label: `Unread${unreadCount ? ` (${unreadCount})` : ""}` },
+                    ].map((item) => (
+                        <button
+                            key={item.value}
+                            type="button"
+                            onClick={() =>
+                                router.get("/notifications", { filter: item.value })
+                            }
+                            className={
+                                "rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors " +
+                                (filter === item.value
+                                    ? "bg-blue-700 text-white"
+                                    : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50")
+                            }
+                        >
+                            {item.label}
+                        </button>
+                    ))}
+                </div>
                 <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                     {notifications.data.length ? (
                         notifications.data.map((n) => (
@@ -97,7 +126,9 @@ export default function Notifications({
                         ))
                     ) : (
                         <div className="p-12 text-center text-sm text-slate-500">
-                            Belum ada notifikasi.
+                            {filter === "unread"
+                                ? "Tidak ada notifikasi yang belum dibaca."
+                                : "Belum ada notifikasi."}
                         </div>
                     )}
                     {notifications.total > 0 && (
